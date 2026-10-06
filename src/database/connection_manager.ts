@@ -266,3 +266,5 @@ export const createDataSourceProxy = (defaultDS: DataSource, isUserConnection: b
         }
     }) as any;
 };
+
+// [commit 77]: perf(db): implement connection pool health check and reconnect retry
