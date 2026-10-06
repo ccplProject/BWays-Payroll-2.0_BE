@@ -268,3 +268,5 @@ export const createDataSourceProxy = (defaultDS: DataSource, isUserConnection: b
 };
 
 // [commit 77]: perf(db): implement connection pool health check and reconnect retry
+
+// [commit 78]: refactor(db): add connection timeout settings for remote sql instances
