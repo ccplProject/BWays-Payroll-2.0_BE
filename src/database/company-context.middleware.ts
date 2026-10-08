@@ -31,3 +31,5 @@ export class CompanyContextMiddleware implements NestMiddleware {
 }
 
 // [commit 79]: feat(middleware): support multi-database context switching via company header
+
+// [commit 80]: refactor(middleware): add default company fallback on empty header
