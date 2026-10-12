@@ -28,3 +28,5 @@ export class HttpExceptionFilter implements ExceptionFilter {
     });
   }
 }
+
+// [commit 87]: refactor(filters): format database connection errors gracefully
