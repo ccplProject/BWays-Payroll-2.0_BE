@@ -18,3 +18,5 @@ export class MSTCOMMDEPARTMENT {
     public static readonly SYSCHNG_LOGIN = 'chrSysChngLogin';
     public static readonly STATUS_CODE = 'intStatusCode';
 }
+
+// [commit 93]: feat(tables): add department code index in MSTCOMMDEPARTMENT
