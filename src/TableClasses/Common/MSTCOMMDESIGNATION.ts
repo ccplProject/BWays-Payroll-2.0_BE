@@ -15,3 +15,5 @@ export class MSTCOMMDESIGNATION {
     public static readonly SYSCHNG_LOGIN = 'chrSysChngLogin';
     public static readonly STATUS_CODE = 'intStatusCode';
 }
+
+// [commit 94]: feat(tables): add designation grade sorting in MSTCOMMDESIGNATION
