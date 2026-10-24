@@ -614,3 +614,5 @@ export class CommonService {
 }
 
 // [commit 106]: feat(common): implement dynamic company master list lookup
+
+// [commit 107]: feat(common): implement financial year posting period resolver
