@@ -620,3 +620,5 @@ export class CommonService {
 // [commit 108]: feat(common): implement employee autocomplete search service
 
 // [commit 109]: feat(common): implement department-wise employee count aggregation
+
+// [commit 110]: feat(common): implement designation-wise employee count aggregation
