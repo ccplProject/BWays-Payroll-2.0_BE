@@ -622,3 +622,5 @@ export class CommonService {
 // [commit 109]: feat(common): implement department-wise employee count aggregation
 
 // [commit 110]: feat(common): implement designation-wise employee count aggregation
+
+// [commit 111]: feat(common): implement monthly employee joining trend query
