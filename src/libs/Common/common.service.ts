@@ -618,3 +618,5 @@ export class CommonService {
 // [commit 107]: feat(common): implement financial year posting period resolver
 
 // [commit 108]: feat(common): implement employee autocomplete search service
+
+// [commit 109]: feat(common): implement department-wise employee count aggregation
