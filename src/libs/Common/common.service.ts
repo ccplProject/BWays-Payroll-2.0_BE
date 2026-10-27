@@ -626,3 +626,5 @@ export class CommonService {
 // [commit 111]: feat(common): implement monthly employee joining trend query
 
 // [commit 112]: feat(common): implement origin state-wise employee demographics
+
+// [commit 113]: refactor(common): optimize stored procedure parameter passing
