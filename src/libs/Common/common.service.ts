@@ -628,3 +628,5 @@ export class CommonService {
 // [commit 112]: feat(common): implement origin state-wise employee demographics
 
 // [commit 113]: refactor(common): optimize stored procedure parameter passing
+
+// [commit 114]: feat(common): add birthday notification query using SEL_RptEmpBDayList
