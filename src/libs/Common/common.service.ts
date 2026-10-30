@@ -632,3 +632,5 @@ export class CommonService {
 // [commit 114]: feat(common): add birthday notification query using SEL_RptEmpBDayList
 
 // [commit 115]: feat(common): add daily attendance punch missout calculation query
+
+// [commit 116]: refactor(common): format numeric metrics with zero fallbacks
