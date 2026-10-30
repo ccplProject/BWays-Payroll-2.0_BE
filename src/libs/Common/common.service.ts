@@ -630,3 +630,5 @@ export class CommonService {
 // [commit 113]: refactor(common): optimize stored procedure parameter passing
 
 // [commit 114]: feat(common): add birthday notification query using SEL_RptEmpBDayList
+
+// [commit 115]: feat(common): add daily attendance punch missout calculation query
