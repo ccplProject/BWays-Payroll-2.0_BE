@@ -96,3 +96,5 @@ export class CommonController {
         return result[0];
     }
 }
+
+// [commit 117]: feat(controller): expose department and designation lookup endpoints
