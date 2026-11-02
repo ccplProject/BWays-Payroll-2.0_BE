@@ -636,3 +636,5 @@ export class CommonService {
 // [commit 116]: refactor(common): format numeric metrics with zero fallbacks
 
 // [commit 120]: perf(common): add query result caching for master tables
+
+// [commit 121]: feat(dashboard): aggregate total active employees count from MSTEMPLOYEE
