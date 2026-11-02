@@ -634,3 +634,5 @@ export class CommonService {
 // [commit 115]: feat(common): add daily attendance punch missout calculation query
 
 // [commit 116]: refactor(common): format numeric metrics with zero fallbacks
+
+// [commit 120]: perf(common): add query result caching for master tables
