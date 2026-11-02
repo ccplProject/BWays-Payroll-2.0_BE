@@ -100,3 +100,5 @@ export class CommonController {
 // [commit 117]: feat(controller): expose department and designation lookup endpoints
 
 // [commit 118]: feat(controller): expose employee search and autocomplete endpoints
+
+// [commit 119]: refactor(controller): add request body validation for report queries
