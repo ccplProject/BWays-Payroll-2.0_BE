@@ -640,3 +640,5 @@ export class CommonService {
 // [commit 121]: feat(dashboard): aggregate total active employees count from MSTEMPLOYEE
 
 // [commit 122]: feat(dashboard): aggregate total department count and active centers
+
+// [commit 123]: feat(dashboard): compute current month upcoming birthdays using stored procedure
