@@ -644,3 +644,5 @@ export class CommonService {
 // [commit 123]: feat(dashboard): compute current month upcoming birthdays using stored procedure
 
 // [commit 124]: feat(dashboard): compute current month punch missout records from TRNPAYDAILYATT
+
+// [commit 125]: feat(dashboard): build department distribution donut chart dataset
