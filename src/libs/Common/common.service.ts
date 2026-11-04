@@ -642,3 +642,5 @@ export class CommonService {
 // [commit 122]: feat(dashboard): aggregate total department count and active centers
 
 // [commit 123]: feat(dashboard): compute current month upcoming birthdays using stored procedure
+
+// [commit 124]: feat(dashboard): compute current month punch missout records from TRNPAYDAILYATT
