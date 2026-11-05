@@ -646,3 +646,5 @@ export class CommonService {
 // [commit 124]: feat(dashboard): compute current month punch missout records from TRNPAYDAILYATT
 
 // [commit 125]: feat(dashboard): build department distribution donut chart dataset
+
+// [commit 126]: feat(dashboard): build monthly workforce growth area chart dataset
