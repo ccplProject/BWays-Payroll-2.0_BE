@@ -648,3 +648,5 @@ export class CommonService {
 // [commit 125]: feat(dashboard): build department distribution donut chart dataset
 
 // [commit 126]: feat(dashboard): build monthly workforce growth area chart dataset
+
+// [commit 127]: feat(dashboard): build top designations distribution bar chart dataset
