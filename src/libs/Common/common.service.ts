@@ -650,3 +650,5 @@ export class CommonService {
 // [commit 126]: feat(dashboard): build monthly workforce growth area chart dataset
 
 // [commit 127]: feat(dashboard): build top designations distribution bar chart dataset
+
+// [commit 128]: feat(dashboard): build regional origin pie chart dataset
