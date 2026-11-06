@@ -652,3 +652,5 @@ export class CommonService {
 // [commit 127]: feat(dashboard): build top designations distribution bar chart dataset
 
 // [commit 128]: feat(dashboard): build regional origin pie chart dataset
+
+// [commit 129]: feat(dashboard): add punch missout employee roster table data
