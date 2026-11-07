@@ -654,3 +654,5 @@ export class CommonService {
 // [commit 128]: feat(dashboard): build regional origin pie chart dataset
 
 // [commit 129]: feat(dashboard): add punch missout employee roster table data
+
+// [commit 130]: feat(dashboard): add birthday celebrants roster table data
