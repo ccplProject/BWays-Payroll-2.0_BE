@@ -658,3 +658,5 @@ export class CommonService {
 // [commit 130]: feat(dashboard): add birthday celebrants roster table data
 
 // [commit 131]: feat(dashboard): implement unified getHrmsDashboard aggregation method
+
+// [commit 133]: refactor(dashboard): handle multi-company database switching for HRMS dashboard
