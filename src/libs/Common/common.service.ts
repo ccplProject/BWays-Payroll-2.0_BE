@@ -656,3 +656,5 @@ export class CommonService {
 // [commit 129]: feat(dashboard): add punch missout employee roster table data
 
 // [commit 130]: feat(dashboard): add birthday celebrants roster table data
+
+// [commit 131]: feat(dashboard): implement unified getHrmsDashboard aggregation method
