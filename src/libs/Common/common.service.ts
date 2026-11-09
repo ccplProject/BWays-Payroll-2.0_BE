@@ -660,3 +660,5 @@ export class CommonService {
 // [commit 131]: feat(dashboard): implement unified getHrmsDashboard aggregation method
 
 // [commit 133]: refactor(dashboard): handle multi-company database switching for HRMS dashboard
+
+// [commit 134]: refactor(dashboard): add comprehensive error boundary and fallback logging
