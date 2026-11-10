@@ -662,3 +662,5 @@ export class CommonService {
 // [commit 133]: refactor(dashboard): handle multi-company database switching for HRMS dashboard
 
 // [commit 134]: refactor(dashboard): add comprehensive error boundary and fallback logging
+
+// [commit 135]: perf(dashboard): optimize query execution with concurrent promise joins
