@@ -668,3 +668,5 @@ export class CommonService {
 // [commit 136]: feat(module-dashboard): design modular summary data aggregator
 
 // [commit 137]: feat(module-dashboard): implement Employee Management module metrics
+
+// [commit 138]: feat(module-dashboard): implement Payroll module salary batch metrics
