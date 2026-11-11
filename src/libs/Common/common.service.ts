@@ -672,3 +672,5 @@ export class CommonService {
 // [commit 138]: feat(module-dashboard): implement Payroll module salary batch metrics
 
 // [commit 139]: feat(module-dashboard): implement Bonus module disbursement metrics
+
+// [commit 140]: feat(module-dashboard): implement Leave Management module metrics
