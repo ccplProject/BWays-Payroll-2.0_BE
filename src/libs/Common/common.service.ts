@@ -676,3 +676,5 @@ export class CommonService {
 // [commit 140]: feat(module-dashboard): implement Leave Management module metrics
 
 // [commit 141]: feat(module-dashboard): implement Time Office attendance & punch metrics
+
+// [commit 142]: feat(module-dashboard): implement unified getModuleDashboardData method
