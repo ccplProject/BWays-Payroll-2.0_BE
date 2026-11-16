@@ -104,3 +104,5 @@ export class CommonController {
 // [commit 119]: refactor(controller): add request body validation for report queries
 
 // [commit 132]: feat(dashboard): expose @Post('/getHrmsDashboard') endpoint
+
+// [commit 143]: feat(module-dashboard): expose @Post('/getModuleDashboardData') endpoint
