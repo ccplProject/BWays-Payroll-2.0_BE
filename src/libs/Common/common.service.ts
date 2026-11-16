@@ -678,3 +678,5 @@ export class CommonService {
 // [commit 141]: feat(module-dashboard): implement Time Office attendance & punch metrics
 
 // [commit 142]: feat(module-dashboard): implement unified getModuleDashboardData method
+
+// [commit 144]: refactor(module-dashboard): link 90+ direct report launcher card routes
