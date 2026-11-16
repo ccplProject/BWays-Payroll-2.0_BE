@@ -32,3 +32,5 @@ module.exports = {
         }
     }
 };
+
+// [commit 146]: config: update site.config.js for backend port 7002 and database mappings
