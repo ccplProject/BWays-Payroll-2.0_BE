@@ -682,3 +682,5 @@ export class CommonService {
 // [commit 144]: refactor(module-dashboard): link 90+ direct report launcher card routes
 
 // [commit 145]: perf(module-dashboard): optimize query response payload size
+
+// [commit 149]: fix(date): ensure ISO timezone serialization in common service
