@@ -90,5 +90,3 @@ export class AuthController {
         return result;
     }
 }
-
-// [commit 85]: feat(auth): add session expiry verification in auth controller

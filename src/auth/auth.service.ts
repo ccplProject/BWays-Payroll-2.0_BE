@@ -110,5 +110,3 @@ export class AuthService {
         return { message: 'Password updated successfully!' };
     }
 }
-
-// [commit 84]: refactor(auth): add password hashing validation using crypto utils

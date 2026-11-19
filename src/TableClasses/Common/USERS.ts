@@ -37,5 +37,3 @@ export class USERS {
     public static readonly FILEPATH = 'filepath';
     public static readonly LOGIN_IDENTITY = 'intLoginIdentity';
 }
-
-// [commit 92]: feat(tables): add active flag and role fields to USERS table model

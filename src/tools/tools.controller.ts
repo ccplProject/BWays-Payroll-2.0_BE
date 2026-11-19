@@ -163,5 +163,3 @@ export class ToolsController {
     return this.toolsService.executeReport(dto);
   }
 }
-
-// [commit 102]: feat(tools): add query latency benchmarking utility

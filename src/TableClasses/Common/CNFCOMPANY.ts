@@ -98,5 +98,3 @@ export class CNFCOMPANY {
     public static readonly ALLOWED_MATCHINGAMT = 'ALLOWED_MATCHINGAMT';
     public static readonly MAXQTY_REORER_FACTOR = 'MAXQTY_REORER_FACTOR';
 }
-
-// [commit 91]: feat(tables): add index constraints and relationships in CNFCOMPANY

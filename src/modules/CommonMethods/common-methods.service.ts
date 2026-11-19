@@ -253,7 +253,3 @@ export class CommonMethodsService {
         return temp;
     }
 }
-
-// [commit 98]: refactor(common-methods): add generic search filter for dropdown lists
-
-// [commit 99]: refactor(common-methods): optimize pagination query for large datasets

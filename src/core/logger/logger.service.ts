@@ -20,5 +20,3 @@ export class AppLogger {
     this.logger.debug(message, context);
   }
 }
-
-// [commit 86]: refactor(logger): format sql query execution time in logger service

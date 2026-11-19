@@ -131,5 +131,3 @@ export class WebHelpViewService {
         }
     }
 }
-
-// [commit 103]: refactor(web): add context-sensitive help topics in web help service

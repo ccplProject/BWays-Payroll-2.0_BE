@@ -29,5 +29,3 @@ export function getCompanyUnique(): string | null {
     const context = companyContextStorage.getStore();
     return context ? context.companyUnique : null;
 }
-
-// [commit 82]: feat(context): add isolation level configuration in database context

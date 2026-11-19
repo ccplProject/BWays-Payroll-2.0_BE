@@ -15,5 +15,3 @@ async function bootstrap() {
   console.log(`Application is running on: http://${__BE_OPEN_TO}:${__BE_PORT}`);
 }
 bootstrap();
-
-// [commit 148]: refactor(main): enable CORS origins and set global API route prefix

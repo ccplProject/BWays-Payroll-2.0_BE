@@ -1018,5 +1018,3 @@ console.log(dataSource.type,"=======================================type");
     }
   }
 }
-
-// [commit 101]: refactor(tools): implement database health check tool endpoint

@@ -15,5 +15,3 @@ export class AppValidationPipe extends ValidationPipe {
     return super.transform(value, metadata);
   }
 }
-
-// [commit 88]: refactor(pipes): add custom payload sanitization in validation pipe

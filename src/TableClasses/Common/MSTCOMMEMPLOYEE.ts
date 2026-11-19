@@ -46,5 +46,3 @@ export class MSTCOMMEMPLOYEE {
     public static readonly SYSCHNG_LOGIN = 'chrSysChngLogin';
     public static readonly STATUS_CODE = 'intStatusCode';
 }
-
-// [commit 95]: feat(tables): add employee status filter in MSTCOMMEMPLOYEE

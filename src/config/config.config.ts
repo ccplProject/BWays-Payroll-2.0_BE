@@ -62,5 +62,3 @@ export const __CREXPORT: string = "crexport.v2.exe";
 
 //-------------- AI Config 
 export const __AI_API_LOGSHEET: string = "http://192.168.1.207:8000/extract/";
-
-// [commit 90]: refactor(config): add dynamic port resolution from site config

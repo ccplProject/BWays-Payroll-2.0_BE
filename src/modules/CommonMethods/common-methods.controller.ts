@@ -120,5 +120,3 @@ export class CommonMethodsController {
         return this.commonMethodsService.menuDetails(body);
     }
 }
-
-// [commit 100]: feat(common-methods): add column sorting in common methods controller

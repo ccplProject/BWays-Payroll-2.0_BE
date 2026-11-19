@@ -26,5 +26,3 @@ export class CNFSHIFTS {
     public static readonly SYSCHNG_LOGIN = 'chrSysChngLogin';
     public static readonly STATUS_CODE = 'intStatusCode';
 }
-
-// [commit 97]: feat(tables): add shift grace time and break duration in CNFSHIFTS

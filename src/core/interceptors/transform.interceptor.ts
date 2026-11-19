@@ -13,5 +13,3 @@ export class TransformInterceptor implements NestInterceptor {
     );
   }
 }
-
-// [commit 89]: refactor(interceptors): standardize success response envelope

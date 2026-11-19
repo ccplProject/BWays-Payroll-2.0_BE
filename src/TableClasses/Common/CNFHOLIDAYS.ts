@@ -12,5 +12,3 @@ export class CNFHOLIDAYS {
     public static readonly SYSADD_LOGIN = 'chrSysAddLogin';
     public static readonly STATUS_CODE = 'intStatusCode';
 }
-
-// [commit 96]: feat(tables): add weekly off and holiday calendar in CNFHOLIDAYS
