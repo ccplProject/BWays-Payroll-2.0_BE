@@ -345,13 +345,30 @@ export class CommonService {
             // 1. Fetch all report menus available for this module
             let reportMenus: any[] = [];
             try {
-                reportMenus = await this.dataSource.query(`
+                const rawMenus = await this.dataSource.query(`
                     SELECT DISTINCT MENU_KEY, MENU_CAPTION, MENU_NAV_PAGE
                     FROM USRMENUS
                     WHERE MODULE_NO = ${moduleNo} AND MENU_NAV_PAGE IS NOT NULL AND MENU_NAV_PAGE LIKE '%Rpt%'
                     ORDER BY MENU_CAPTION
                 `);
-            } catch (e) {
+
+                // Deduplicate & disambiguate any duplicate captions
+                const seenCaptions = new Set<string>();
+                reportMenus = (rawMenus || []).map((r: any) => {
+                    let caption = (r.MENU_CAPTION || '').trim();
+                    if (seenCaptions.has(caption)) {
+                        if (r.MENU_NAV_PAGE?.includes('FestivalAdv')) {
+                            caption = 'Festival Advance Deduction List';
+                        } else if (r.MENU_NAV_PAGE?.includes('OverTimeListReport')) {
+                            caption = 'Overtime Summary Report';
+                        } else {
+                            caption = `${caption} (Detailed)`;
+                        }
+                    }
+                    seenCaptions.add(caption);
+                    return { ...r, MENU_CAPTION: caption };
+                });
+            } catch (e: any) {
                 this.logger.warn(`Failed fetching report menus for module ${moduleNo}: ${e.message}`);
             }
 
@@ -486,11 +503,18 @@ export class CommonService {
                 `);
 
                 const recentBonusEmployees = await this.dataSource.query(`
-                    SELECT TOP 8 B.EMP_NO, B.NAME, D.NAME AS DEPT_NAME, B.BONUS_RATE, B.NETPAY_AMT
+                    SELECT TOP 8 
+                        B.EMP_NO, 
+                        ISNULL(E.NAME, B.NAME) AS NAME, 
+                        ISNULL(D.NAME, 'General') AS DEPT_NAME, 
+                        MAX(B.BONUS_RATE) AS BONUS_RATE, 
+                        SUM(B.NETPAY_AMT) AS NETPAY_AMT
                     FROM TRNPAYBONUSH B
-                    LEFT JOIN MSTEMPDEPARTMENT D ON B.DEPT_CODE = D.CODE
+                    LEFT JOIN MSTEMPLOYEE E ON B.EMP_NO = E.EMP_NO
+                    LEFT JOIN MSTEMPDEPARTMENT D ON E.DEPT_CODE = D.CODE
                     WHERE B.STATUS_CODE = 0
-                    ORDER BY B.NETPAY_AMT DESC
+                    GROUP BY B.EMP_NO, ISNULL(E.NAME, B.NAME), ISNULL(D.NAME, 'General')
+                    ORDER BY NETPAY_AMT DESC
                 `);
 
                 kpis = {
