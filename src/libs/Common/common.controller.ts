@@ -37,6 +37,18 @@ export class CommonController {
     }
 
     @Public()
+    @Post('/getEmployeeListForSearch')
+    async getEmployeeListForSearch(@Body() body: any) {
+        return await this.commonService.getEmployeeListForSearch(body);
+    }
+
+    @Public()
+    @Post('/getEmployee360Data')
+    async getEmployee360Data(@Body() body: any) {
+        return await this.commonService.getEmployee360Data(body);
+    }
+
+    @Public()
     @Post('/getSpData')
     async getSpData(@Body() data: any) {
         return await this.commonService.getSpData(data);

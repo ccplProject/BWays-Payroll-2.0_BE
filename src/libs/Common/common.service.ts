@@ -611,4 +611,236 @@ export class CommonService {
             return { statusCode: 500, message: err?.message, reportMenus: [] };
         }
     }
+
+    async getEmployeeListForSearch(body: any) {
+        try {
+            const employees = await this.dataSource.query(`
+                SELECT 
+                    E.EMP_NO AS empNo,
+                    E.UNIV_EMPNO AS tokenNo,
+                    E.NAME AS name,
+                    ISNULL(D.NAME, 'N/A') AS deptName,
+                    ISNULL(DS.NAME, 'N/A') AS desgName,
+                    E.STATUS_CODE AS statusCode
+                FROM MSTEMPLOYEE E
+                LEFT JOIN MSTEMPDEPARTMENT D ON E.DEPT_CODE = D.CODE
+                LEFT JOIN MSTEMPDESIGNATION DS ON E.DESIGNATION_CODE = DS.CODE
+                ORDER BY CASE WHEN E.STATUS_CODE = 0 THEN 0 ELSE 1 END, E.NAME ASC
+            `);
+            return {
+                statusCode: 200,
+                data: employees || []
+            };
+        } catch (err: any) {
+            this.logger.error('Error fetching employee list for search', err);
+            return { statusCode: 500, message: err?.message, data: [] };
+        }
+    }
+
+    async getEmployee360Data(body: any) {
+        try {
+            const empNo = Number(body?.empNo || 10001);
+
+            // 1. Master Profile
+            const profileRes = await this.dataSource.query(`
+                SELECT 
+                    E.EMP_NO AS empNo,
+                    E.UNIV_EMPNO AS tokenNo,
+                    E.PREFIX_CODE AS prefix,
+                    E.NAME AS name,
+                    E.GENDER AS gender,
+                    E.MARTIAL_STATUS AS maritalStatus,
+                    E.ADDRESS1 AS address1,
+                    E.ADDRESS2 AS address2,
+                    E.PINCODE AS pincode,
+                    E.CELL_NO AS cellNo,
+                    E.MOBILE_NO AS mobileNo,
+                    E.EMAIL_ID AS emailId,
+                    E.BIRTH_DATE AS birthDate,
+                    E.JOIN_DATE AS joinDate,
+                    E.RETIRE_DATE AS retireDate,
+                    E.LEFT_DATE AS leftDate,
+                    E.PAN_NO AS panNo,
+                    E.ADHAR_CARD_NO AS aadharNo,
+                    E.PF_TYPE AS pfType,
+                    E.PF_ACNO AS pfAcNo,
+                    E.UAN_NO AS uanNo,
+                    E.ESI_NO AS esiNo,
+                    E.BANK_ACNO AS bankAcNo,
+                    E.QUALIFICATION AS qualification,
+                    E.EXPERIENCE AS experience,
+                    E.STATUS_CODE AS statusCode,
+                    ISNULL(D.NAME, 'N/A') AS deptName,
+                    ISNULL(DS.NAME, 'N/A') AS desgName,
+                    ISNULL(B.NAME, 'N/A') AS bankName,
+                    ISNULL(B.IFSC_CODE, 'N/A') AS ifscCode,
+                    ISNULL(C.NAME, 'N/A') AS cityName
+                FROM MSTEMPLOYEE E
+                LEFT JOIN MSTEMPDEPARTMENT D ON E.DEPT_CODE = D.CODE
+                LEFT JOIN MSTEMPDESIGNATION DS ON E.DESIGNATION_CODE = DS.CODE
+                LEFT JOIN MSTPAYBANK B ON E.BANK_CODE = B.CODE
+                LEFT JOIN MSTCOMMCITY C ON E.CITY_CODE = C.CODE
+                WHERE E.EMP_NO = ${empNo}
+            `);
+
+            const profile = profileRes?.[0] || null;
+            if (!profile) {
+                return { statusCode: 404, message: `Employee with EMP_NO ${empNo} not found.` };
+            }
+
+            // 2. Current Salary Structure & Rate
+            const currentRateRes = await this.dataSource.query(`
+                SELECT TOP 1 
+                    EFFECTIVE_DATE AS effectiveDate,
+                    BASIC_RATE AS basicRate,
+                    EMPPAY_RATE AS totalRate,
+                    GRADEPAY_RATE AS gradePayRate,
+                    PAY_MODE AS payMode,
+                    BANK_ACNO AS bankAcNo
+                FROM MSTEMPLOYEERATE
+                WHERE EMP_NO = ${empNo} AND STATUS_CODE = 0
+                ORDER BY EFFECTIVE_DATE DESC
+            `);
+            const currentSalary = currentRateRes?.[0] || null;
+
+            // 3. Fixed Allowance & Deduction heads
+            const fixedHeadsRes = await this.dataSource.query(`
+                SELECT 
+                    F.PAY_HEAD AS headCode,
+                    H.NAME AS headName,
+                    H.HEAD_TYPE AS headType,
+                    F.AMOUNT AS amount
+                FROM MSTEMPERNFIXED F
+                LEFT JOIN CNFPAYERNDEDHEADS H ON F.PAY_HEAD = H.CODE
+                WHERE F.EMP_NO = ${empNo} AND F.STATUS_CODE = 0
+                ORDER BY H.HEAD_TYPE, F.SR_NO
+            `);
+
+            // 4. Rate History (increments over time)
+            const rateHistory = await this.dataSource.query(`
+                SELECT 
+                    EFFECTIVE_DATE AS effectiveDate,
+                    BASIC_RATE AS basicRate,
+                    EMPPAY_RATE AS totalRate
+                FROM (
+                    SELECT EFFECTIVE_DATE, BASIC_RATE, EMPPAY_RATE FROM MSTEMPLOYEERATE WHERE EMP_NO = ${empNo}
+                    UNION
+                    SELECT EFFECTIVE_DATE, BASIC_RATE, EMPPAY_RATE FROM MSTEMPLOYEERATEHIST WHERE EMP_NO = ${empNo}
+                ) T
+                WHERE BASIC_RATE > 0 OR EMPPAY_RATE > 0
+                ORDER BY EFFECTIVE_DATE DESC
+            `);
+
+            // 5. Monthly Salary & Payment History (TRNPAYMTHPAYH)
+            const salaryHistory = await this.dataSource.query(`
+                SELECT TOP 24
+                    TRAN_DATE AS tranDate,
+                    EARNING_AMT AS grossPay,
+                    DEDUCTION_AMT AS deductions,
+                    NETPAY_AMT AS netPay,
+                    ADJ_PAIDDAYS AS paidDays
+                FROM TRNPAYMTHPAYH
+                WHERE EMP_NO = ${empNo} AND STATUS_CODE = 0
+                ORDER BY TRAN_DATE DESC
+            `);
+
+            // 6. Bonus History (TRNPAYBONUSH)
+            const bonusHistory = await this.dataSource.query(`
+                SELECT 
+                    TRAN_DATE AS tranDate,
+                    FROM_DATE AS fromDate,
+                    TO_DATE AS toDate,
+                    BONUS_RATE AS bonusRate,
+                    GROSSEARNING_AMT AS grossEarn,
+                    EARNING_AMT AS bonusEarn,
+                    NETPAY_AMT AS netPay
+                FROM TRNPAYBONUSH
+                WHERE EMP_NO = ${empNo} AND STATUS_CODE = 0
+                ORDER BY TRAN_DATE DESC
+            `);
+
+            // 7. Monthly Attendance Summary (TRNPAYMTHATT)
+            const attendanceHistory = await this.dataSource.query(`
+                SELECT TOP 12
+                    TRAN_DATE AS tranDate,
+                    MONTH_DAYS AS monthDays,
+                    PAID_DAYS AS paidDays,
+                    PRESENT_DAYS AS presentDays,
+                    WEEKOFF_DAYS AS weekoffDays,
+                    HOLI_DAYS AS holidays,
+                    ABSENT_DAYS AS absentDays,
+                    LWP_DAYS AS lwpDays,
+                    CASUL_DAYS AS clDays,
+                    SICKL_DAYS AS slDays,
+                    PREVL_DAYS AS plDays,
+                    LATE_dAYS AS lateDays,
+                    OT_HOURS AS otHours
+                FROM TRNPAYMTHATT
+                WHERE EMP_NO = ${empNo} AND STATUS_CODE = 0
+                ORDER BY TRAN_DATE DESC
+            `);
+
+            // 8. Recent Daily Punches (TRNPAYDAILYATT)
+            const recentPunches = await this.dataSource.query(`
+                SELECT TOP 15
+                    A.TRAN_DATE AS tranDate,
+                    ISNULL(S.NAME, 'General') AS shiftName,
+                    A.IN_TIME AS inTime,
+                    A.OUT_TIME AS outTime,
+                    A.PRESENT_DAYS AS presentDays,
+                    A.IS_LATEMARK AS isLate,
+                    A.LATE_BY AS lateBy,
+                    A.TOT_WKHRS AS workHours
+                FROM TRNPAYDAILYATT A
+                LEFT JOIN MSTCOMMSHIFT S ON A.SHIFT = S.CODE
+                WHERE A.EMP_NO = ${empNo} AND A.STATUS_CODE = 0
+                ORDER BY A.TRAN_DATE DESC
+            `);
+
+            // 9. Leave Applications History (TRNEMPLEAVEH)
+            const leaveHistory = await this.dataSource.query(`
+                SELECT TOP 15
+                    L.TRAN_DATE AS tranDate,
+                    L.FROM_DATE AS fromDate,
+                    L.TO_DATE AS toDate,
+                    L.NO_DAYS AS noDays,
+                    L.LEAVE_REASON AS reason,
+                    ISNULL(P.SHORT_NAME, P.NAME) AS leaveTypeName,
+                    L.STATUS_CODE AS statusCode
+                FROM TRNEMPLEAVEH L
+                LEFT JOIN MSTPAYLEAVES P ON L.LEAVE_TYPE = P.CODE
+                WHERE L.EMP_NO = ${empNo}
+                ORDER BY L.FROM_DATE DESC
+            `);
+
+            // 10. Leave Types Quota
+            const leaveTypes = await this.dataSource.query(`
+                SELECT 
+                    CODE AS code,
+                    NAME AS name,
+                    SHORT_NAME AS shortName,
+                    PAID_LEAVES AS annualQuota
+                FROM MSTPAYLEAVES
+                WHERE STATUS_CODE = 0
+            `);
+
+            return {
+                statusCode: 200,
+                profile,
+                currentSalary,
+                fixedHeads: fixedHeadsRes || [],
+                rateHistory: rateHistory || [],
+                salaryHistory: salaryHistory || [],
+                bonusHistory: bonusHistory || [],
+                attendanceHistory: attendanceHistory || [],
+                recentPunches: recentPunches || [],
+                leaveHistory: leaveHistory || [],
+                leaveTypes: leaveTypes || []
+            };
+
+        } catch (err: any) {
+            this.logger.error(`Error in getEmployee360Data for emp ${body?.empNo}`, err);
+            return { statusCode: 500, message: err?.message };
+        }
+    }
 }
