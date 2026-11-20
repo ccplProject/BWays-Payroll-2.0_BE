@@ -414,18 +414,38 @@ export class CommonService {
                     ORDER BY SUBSTRING(BIRTH_DATE, 7, 2)
                 `);
 
+                // Recent Joinings
+                const recentJoinings = await this.dataSource.query(`
+                    SELECT TOP 6 
+                        E.EMP_NO AS empNo,
+                        E.NAME AS name,
+                        E.JOIN_DATE AS joinDate,
+                        ISNULL(D.NAME, 'General') AS deptName,
+                        ISNULL(DS.NAME, 'Staff') AS desgName
+                    FROM MSTEMPLOYEE E
+                    LEFT JOIN MSTEMPDEPARTMENT D ON E.DEPT_CODE = D.CODE
+                    LEFT JOIN MSTEMPDESIGNATION DS ON E.DESIGNATION_CODE = DS.CODE
+                    WHERE E.STATUS_CODE = 0 AND E.JOIN_DATE IS NOT NULL
+                    ORDER BY E.JOIN_DATE DESC
+                `);
+
                 kpis = {
                     totalEmployees: empStats?.[0]?.total || 0,
                     activeEmployees: empStats?.[0]?.active || 0,
                     maleCount: empStats?.[0]?.male || 0,
                     femaleCount: empStats?.[0]?.female || 0,
-                    birthdaysCount: bdayList.length
+                    birthdaysCount: bdayList.length,
+                    departmentsCount: deptBreakdown.length,
+                    retentionRate: Math.round(((empStats?.[0]?.active || 0) / (empStats?.[0]?.total || 1)) * 100)
                 };
                 charts = {
                     departments: deptBreakdown,
                     designations: dsgBreakdown
                 };
-                details = { birthdays: bdayList };
+                details = { 
+                    birthdays: bdayList,
+                    recentJoinings: recentJoinings
+                };
 
             } else if (moduleNo === 20) {
                 // === Module 20: Payroll ===
