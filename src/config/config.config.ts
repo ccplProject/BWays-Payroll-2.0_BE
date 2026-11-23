@@ -17,15 +17,17 @@ export const __OLD_SITE_URL: string = "http://192.168.1.156/bwayspayroll/Login.A
 
 //-------------- DB Config - MSSQL (Payroll)
 export const __MSSQL_DB_SERVER: string = '192.168.1.207';
-export const __MSSQL_DB_PORT: number = 10433;
+export const __MSSQL_DB_PORT: number = 1433;
+// export const __MSSQL_DB_PORT: number = 10433;
 export const __MSSQL_DB_USER: string = "sa";
-export const __MSSQL_DB_PASSWORD: string = 'Ccpl@7276';
+export const __MSSQL_DB_PASSWORD: string = '123456';
 
 //-------------- User DB Config - MSSQL (Prepared for future split, currently same database)
 export const __MSSQL_DB_USSERVER: string = '192.168.1.207';
-export const __MSSQL_DB_USPORT: number = 10433;
+export const __MSSQL_DB_USPORT: number = 1433;
+// export const __MSSQL_DB_USPORT: number = 10433;
 export const __MSSQL_DB_USUSER: string = "sa";
-export const __MSSQL_DB_USPASSWORD: string = 'Ccpl@7276';
+export const __MSSQL_DB_USPASSWORD: string = '123456';
 
 export const __MSSQL_DATABASE_MAIN: string = 'PARIKHM_20268';
 export const __MSSQL_DATABASE_USER: string = 'PARIKHM_20268'; // Currently same as MAIN, can be changed to separate USERS DB in future
