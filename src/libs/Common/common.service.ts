@@ -569,12 +569,59 @@ export class CommonService {
                     WHERE STATUS_CODE = 0 AND LEAVE_DAYS < 0
                 `);
 
+                // Month-wise Paid Leave vs Sick Leave Trend
+                let monthlyLeaveTrend: any[] = [];
+                try {
+                    monthlyLeaveTrend = await this.dataSource.query(`
+                        SELECT 
+                            M.monthKey,
+                            ISNULL(SUM(CASE WHEN UPPER(L.NAME) LIKE '%PRIV%' OR UPPER(L.NAME) LIKE '%PAID%' OR UPPER(L.NAME) LIKE '%EARN%' THEN ABS(P.LEAVE_DAYS) ELSE 0 END), 0) AS paidDays,
+                            ISNULL(SUM(CASE WHEN UPPER(L.NAME) LIKE '%SICK%' OR UPPER(L.NAME) LIKE '%SL%' THEN ABS(P.LEAVE_DAYS) ELSE 0 END), 0) AS sickDays,
+                            ISNULL(SUM(ABS(P.LEAVE_DAYS)), 0) AS totalDays
+                        FROM (
+                            SELECT DISTINCT SUBSTRING(CONVERT(VARCHAR(10), TRAN_DATE), 1, 6) AS monthKey
+                            FROM TRNPAYMTHPAYH
+                            WHERE STATUS_CODE = 0
+                            UNION
+                            SELECT DISTINCT SUBSTRING(CONVERT(VARCHAR(10), TRAN_DATE), 1, 6) AS monthKey
+                            FROM TRNPAYLEAVEPOST
+                            WHERE STATUS_CODE = 0 AND LEAVE_DAYS < 0
+                        ) M
+                        LEFT JOIN TRNPAYLEAVEPOST P 
+                            ON SUBSTRING(CONVERT(VARCHAR(10), P.TRAN_DATE), 1, 6) = M.monthKey 
+                            AND P.STATUS_CODE = 0 
+                            AND P.LEAVE_DAYS < 0
+                        LEFT JOIN MSTPAYLEAVES L ON P.LEAVE_CODE = L.CODE
+                        GROUP BY M.monthKey
+                        ORDER BY M.monthKey ASC
+                    `);
+                } catch (e: any) {
+                    this.logger.warn(`Error querying monthlyLeaveTrend: ${e?.message}`);
+                }
+
+                // Latest Leave Month and all records in that month
+                const maxLeaveMonthRes = await this.dataSource.query(`
+                    SELECT MAX(SUBSTRING(CONVERT(VARCHAR(10), TRAN_DATE), 1, 6)) AS maxMonth
+                    FROM TRNPAYLEAVEPOST
+                    WHERE STATUS_CODE = 0 AND LEAVE_DAYS < 0
+                `);
+                const activeLeaveMonth = maxLeaveMonthRes?.[0]?.maxMonth || '202611';
+
+                let leaveMonthName = 'November 2026';
+                if (activeLeaveMonth && activeLeaveMonth.length === 6) {
+                    const y = activeLeaveMonth.slice(0, 4);
+                    const m = parseInt(activeLeaveMonth.slice(4, 6), 10);
+                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    leaveMonthName = `${monthNames[m - 1] || ''} ${y}`.trim();
+                }
+
                 const recentLeaves = await this.dataSource.query(`
-                    SELECT TOP 8 P.TRAN_DATE, E.NAME AS EMP_NAME, L.NAME AS LEAVE_NAME, ABS(P.LEAVE_DAYS) AS DAYS
+                    SELECT P.TRAN_DATE, E.NAME AS EMP_NAME, L.NAME AS LEAVE_NAME, ABS(P.LEAVE_DAYS) AS DAYS
                     FROM TRNPAYLEAVEPOST P
                     INNER JOIN MSTEMPLOYEE E ON P.EMP_NO = E.EMP_NO
                     INNER JOIN MSTPAYLEAVES L ON P.LEAVE_CODE = L.CODE
                     WHERE P.STATUS_CODE = 0 AND P.LEAVE_DAYS < 0
+                      AND SUBSTRING(CONVERT(VARCHAR(10), P.TRAN_DATE), 1, 6) = '${activeLeaveMonth}'
                     ORDER BY P.TRAN_DATE DESC
                 `);
 
@@ -584,10 +631,13 @@ export class CommonService {
                     activeLeaveCategories: 6
                 };
                 charts = {
-                    leaveDistribution: leaveTypes
+                    leaveDistribution: leaveTypes,
+                    monthlyLeaveTrend: monthlyLeaveTrend || []
                 };
                 details = {
-                    recentLeaves
+                    recentLeaves,
+                    leaveMonth: activeLeaveMonth,
+                    leaveMonthName: leaveMonthName
                 };
 
             } else if (moduleNo === 30) {
@@ -602,7 +652,7 @@ export class CommonService {
                         SUM(CASE WHEN PRESENT_DAYS > 0 THEN 1 ELSE 0 END) AS presentCount,
                         SUM(CASE WHEN PRESENT_DAYS = 0 THEN 1 ELSE 0 END) AS absentCount,
                         SUM(CASE WHEN IS_LATEMARK = 1 THEN 1 ELSE 0 END) AS lateCount,
-                        SUM(CASE WHEN OUT_TIME = '00:00' OR OUT_TIME IS NULL THEN 1 ELSE 0 END) AS missoutCount
+                        SUM(CASE WHEN PRESENT_DAYS > 0 AND (OUT_TIME = '00:00' OR OUT_TIME IS NULL) THEN 1 ELSE 0 END) AS missoutCount
                     FROM TRNPAYDAILYATT
                     WHERE TRAN_DATE = '${maxDate}' AND STATUS_CODE = 0
                 `);
@@ -615,12 +665,45 @@ export class CommonService {
                     GROUP BY S.NAME
                 `);
 
+                let attTrend: any[] = [];
+                try {
+                    // Fetch latest 7 operational dates in chronological order
+                    attTrend = await this.dataSource.query(`
+                        SELECT * FROM (
+                            SELECT TOP 7
+                                TRAN_DATE,
+                                SUM(CASE WHEN PRESENT_DAYS > 0 THEN 1 ELSE 0 END) AS presentCount,
+                                SUM(CASE WHEN PRESENT_DAYS = 0 THEN 1 ELSE 0 END) AS absentCount
+                            FROM TRNPAYDAILYATT
+                            WHERE STATUS_CODE = 0
+                            GROUP BY TRAN_DATE
+                            ORDER BY TRAN_DATE DESC
+                        ) T
+                        ORDER BY TRAN_DATE ASC
+                    `);
+
+                    const latestDatesSummary = await this.dataSource.query(`
+                        SELECT TOP 10 
+                            TRAN_DATE, 
+                            COUNT(*) AS total, 
+                            SUM(CASE WHEN PRESENT_DAYS > 0 THEN 1 ELSE 0 END) AS pres,
+                            SUM(CASE WHEN PRESENT_DAYS = 0 THEN 1 ELSE 0 END) AS abs
+                        FROM TRNPAYDAILYATT
+                        WHERE STATUS_CODE = 0
+                        GROUP BY TRAN_DATE
+                        ORDER BY TRAN_DATE DESC
+                    `);
+                    this.logger.log(`TimeOffice Latest Dates: ${JSON.stringify(latestDatesSummary)}`);
+                } catch (e: any) {
+                    this.logger.warn(`Error querying attTrend: ${e?.message}`);
+                }
+
                 const missoutList = await this.dataSource.query(`
-                    SELECT TOP 8 A.EMP_NO, E.NAME, A.IN_TIME, A.OUT_TIME
+                    SELECT A.TRAN_DATE, A.EMP_NO, E.NAME, A.IN_TIME, A.OUT_TIME
                     FROM TRNPAYDAILYATT A
                     INNER JOIN MSTEMPLOYEE E ON A.EMP_NO = E.EMP_NO
-                    WHERE A.STATUS_CODE = 0 AND A.PRESENT_DAYS = 1 AND (A.OUT_TIME = '00:00' OR A.OUT_TIME IS NULL)
-                    ORDER BY A.TRAN_DATE DESC
+                    WHERE A.TRAN_DATE = '${maxDate}' AND A.STATUS_CODE = 0 AND A.PRESENT_DAYS > 0 AND (A.OUT_TIME = '00:00' OR A.OUT_TIME IS NULL)
+                    ORDER BY A.EMP_NO ASC
                 `);
 
                 kpis = {
@@ -631,7 +714,8 @@ export class CommonService {
                     missoutCount: attStats?.[0]?.missoutCount || 0
                 };
                 charts = {
-                    shifts: shiftStats
+                    shifts: shiftStats,
+                    attTrend: attTrend || []
                 };
                 details = {
                     missouts: missoutList
