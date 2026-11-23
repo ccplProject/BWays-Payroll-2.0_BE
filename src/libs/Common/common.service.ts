@@ -348,7 +348,10 @@ export class CommonService {
                 const rawMenus = await this.dataSource.query(`
                     SELECT DISTINCT MENU_KEY, MENU_CAPTION, MENU_NAV_PAGE
                     FROM USRMENUS
-                    WHERE MODULE_NO = ${moduleNo} AND MENU_NAV_PAGE IS NOT NULL AND MENU_NAV_PAGE LIKE '%Rpt%'
+                    WHERE MODULE_NO = ${moduleNo} 
+                      AND MENU_NAV_PAGE IS NOT NULL 
+                      AND MENU_NAV_PAGE LIKE '%Rpt%'
+                      AND MENU_CAPTION NOT IN ('Reports', 'Report', 'Employee on Hold / Suspended')
                     ORDER BY MENU_CAPTION
                 `);
 
@@ -383,8 +386,8 @@ export class CommonService {
                     SELECT 
                         COUNT(*) AS total,
                         SUM(CASE WHEN STATUS_CODE = 0 THEN 1 ELSE 0 END) AS active,
-                        SUM(CASE WHEN GENDER = 'M' THEN 1 ELSE 0 END) AS male,
-                        SUM(CASE WHEN GENDER = 'F' THEN 1 ELSE 0 END) AS female
+                        SUM(CASE WHEN STATUS_CODE = 0 AND GENDER = 'M' THEN 1 ELSE 0 END) AS male,
+                        SUM(CASE WHEN STATUS_CODE = 0 AND GENDER = 'F' THEN 1 ELSE 0 END) AS female
                     FROM MSTEMPLOYEE
                 `);
                 const deptBreakdown = await this.dataSource.query(`
@@ -442,7 +445,7 @@ export class CommonService {
                     departments: deptBreakdown,
                     designations: dsgBreakdown
                 };
-                details = { 
+                details = {
                     birthdays: bdayList,
                     recentJoinings: recentJoinings
                 };
