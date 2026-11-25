@@ -49,6 +49,12 @@ export class CommonController {
     }
 
     @Public()
+    @Post('/getDateWiseAttendanceReport')
+    async getDateWiseAttendanceReport(@Body() body: any) {
+        return await this.commonService.getDateWiseAttendanceReport(body);
+    }
+
+    @Public()
     @Post('/getSpData')
     async getSpData(@Body() data: any) {
         return await this.commonService.getSpData(data);
