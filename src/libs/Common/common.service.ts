@@ -642,7 +642,7 @@ export class CommonService {
                 details = {
                     recentLeaves,
                     leaveMonth: activeLeaveMonth,
-                    leaveMonthName: leaveMonthName
+                    leaveMonthName: leaveMonthName,
                     dailyAttendance: attendanceReport
                 };
 
