@@ -3,11 +3,18 @@ module.exports = {
         "private": {
             "DATABASE": {
                 "USER_DB_SERVER": "192.168.1.207",
-                "USER_DB_PORT": 10433,
+                "USER_DB_PORT": 1433,
                 "USER_DB_USER": "sa",
-                "USER_DB_PASSWORD": "Ccpl@7276",
+                "USER_DB_PASSWORD": "123456",
                 "USER_DB": "PARIKHM_20268"
             }
+            //  "DATABASE": {
+            //     "USER_DB_SERVER": "192.168.1.207",
+            //     "USER_DB_PORT": 10433,
+            //     "USER_DB_USER": "sa",
+            //     "USER_DB_PASSWORD": "Ccpl@7276",
+            //     "USER_DB": "PARIKHM_20268"
+            // }
         },
         "URL": {
             "isDynamicUrl": false,
