@@ -575,16 +575,22 @@ export class CommonService {
                     ORDER BY P.TRAN_DATE DESC
                 `);
 
+                // Fetch date-wise attendance report for today (or passed date)
+                const attendanceReport = await this.getDateWiseAttendanceReport({ date: body?.date });
+
                 kpis = {
                     totalLeavesAvailed: totalLeavesTakenRes?.[0]?.totalDays || 0,
                     leaveTypesCount: leaveTypes.length,
-                    activeLeaveCategories: 6
+                    activeLeaveCategories: 6,
+                    todayPresent: attendanceReport.summary.present,
+                    todayAbsent: attendanceReport.summary.absent
                 };
                 charts = {
                     leaveDistribution: leaveTypes
                 };
                 details = {
-                    recentLeaves
+                    recentLeaves,
+                    dailyAttendance: attendanceReport
                 };
 
             } else if (moduleNo === 30) {
@@ -885,6 +891,89 @@ export class CommonService {
         } catch (err: any) {
             this.logger.error(`Error in getEmployee360Data for emp ${body?.empNo}`, err);
             return { statusCode: 500, message: err?.message };
+        }
+    }
+
+    async getDateWiseAttendanceReport(body: any) {
+        try {
+            let dateStr = body?.date ? String(body.date).replace(/-/g, '').trim() : '';
+            if (!dateStr) {
+                const now = new Date();
+                const yyyy = now.getFullYear();
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const dd = String(now.getDate()).padStart(2, '0');
+                dateStr = `${yyyy}${mm}${dd}`;
+            }
+
+            const stats = await this.dataSource.query(`
+                SELECT 
+                    COUNT(A.EMP_NO) AS totalRecords,
+                    SUM(CASE WHEN A.PRESENT_DAYS > 0 THEN 1 ELSE 0 END) AS presentCount,
+                    SUM(CASE WHEN A.PRESENT_DAYS = 0 THEN 1 ELSE 0 END) AS absentCount,
+                    SUM(CASE WHEN A.IS_LATEMARK = 1 THEN 1 ELSE 0 END) AS lateCount,
+                    SUM(CASE WHEN A.PRESENT_DAYS = 0.5 THEN 1 ELSE 0 END) AS halfDayCount
+                FROM TRNPAYDAILYATT A
+                WHERE A.TRAN_DATE = '${dateStr}' AND A.STATUS_CODE = 0
+            `);
+
+            const list = await this.dataSource.query(`
+                SELECT 
+                    A.EMP_NO AS empNo,
+                    E.NAME AS empName,
+                    ISNULL(D.NAME, 'General') AS deptName,
+                    ISNULL(DS.NAME, 'Staff') AS desgName,
+                    ISNULL(S.NAME, 'General') AS shiftName,
+                    ISNULL(A.IN_TIME, '--:--') AS inTime,
+                    ISNULL(A.OUT_TIME, '--:--') AS outTime,
+                    A.PRESENT_DAYS AS presentDays,
+                    CASE 
+                        WHEN A.PRESENT_DAYS >= 1 THEN 'Present'
+                        WHEN A.PRESENT_DAYS = 0.5 THEN 'Half Day'
+                        ELSE 'Absent'
+                    END AS status,
+                    ISNULL(A.IS_LATEMARK, 0) AS isLate,
+                    ISNULL(A.LATE_BY, 0) AS lateBy,
+                    ISNULL(A.TOT_WKHRS, 0) AS workHours
+                FROM TRNPAYDAILYATT A
+                INNER JOIN MSTEMPLOYEE E ON A.EMP_NO = E.EMP_NO
+                LEFT JOIN MSTEMPDEPARTMENT D ON E.DEPT_CODE = D.CODE
+                LEFT JOIN MSTEMPDESIGNATION DS ON E.DESIGNATION_CODE = DS.CODE
+                LEFT JOIN MSTCOMMSHIFT S ON A.SHIFT = S.CODE
+                WHERE A.TRAN_DATE = '${dateStr}' AND A.STATUS_CODE = 0
+                ORDER BY CASE WHEN A.PRESENT_DAYS > 0 THEN 0 ELSE 1 END, E.NAME ASC
+            `);
+
+            let latestAvailableDate = '';
+            if (!list || list.length === 0) {
+                const maxRes = await this.dataSource.query(`
+                    SELECT MAX(TRAN_DATE) AS maxDate FROM TRNPAYDAILYATT WHERE STATUS_CODE = 0
+                `);
+                latestAvailableDate = maxRes?.[0]?.maxDate || '';
+            }
+
+            return {
+                statusCode: 200,
+                selectedDate: dateStr,
+                formattedDate: dateStr.length === 8 ? `${dateStr.substring(6, 8)}/${dateStr.substring(4, 6)}/${dateStr.substring(0, 4)}` : dateStr,
+                summary: {
+                    total: Number(stats?.[0]?.totalRecords || 0),
+                    present: Number(stats?.[0]?.presentCount || 0),
+                    absent: Number(stats?.[0]?.absentCount || 0),
+                    late: Number(stats?.[0]?.lateCount || 0),
+                    halfDay: Number(stats?.[0]?.halfDayCount || 0)
+                },
+                employees: list || [],
+                latestAvailableDate
+            };
+        } catch (err: any) {
+            this.logger.error('Error in getDateWiseAttendanceReport', err);
+            return {
+                statusCode: 500,
+                message: err?.message,
+                selectedDate: body?.date,
+                summary: { total: 0, present: 0, absent: 0, late: 0, halfDay: 0 },
+                employees: []
+            };
         }
     }
 }
